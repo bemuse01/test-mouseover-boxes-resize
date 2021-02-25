@@ -1,0 +1,41 @@
+*{
+    padding: 0;
+    margin: 0;
+}
+html, body{
+    overflow: hidden;
+}
+
+
+/* box */
+div#box-wrap{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50%;
+    height: 250px;
+    overflow: hidden;
+}
+div.box{
+    position: absolute;
+    height: 100%;
+}
+div.box-event{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+}
+div.box-inner{
+    position: absolute;
+    width: 400%;
+    height: 100%;
+    overflow: hidden;
+}
+div.box-inner-1{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}

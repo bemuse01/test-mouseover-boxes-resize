@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- lib -->
+        <script src="assets/js/lib/vue.min.js"></script>
+        <script src="assets/js/lib/tween.umd.js"></script>
+    
+
+        <!-- element -->
+        <!-- box -->
+        <script src="assets/js/element/box/box.js"></script>
+        <!-- box child -->
+        <script src="assets/js/element/box/child/box.child.param.js"></script>
+        <script src="assets/js/element/box/child/box.child.build.js"></script>
+        <!-- box build -->
+        <script src="assets/js/element/box/box.build.js"></script>
+
+        <!-- style -->
+        <link href="assets/css/main.css" rel="stylesheet" type="text/css">
+    </head>
+    <body>
+        <div id="wrap">
+            <div id="box-wrap">
+                <div class="box"
+                    v-for="i in element.box.child.getElement()"
+                    :key="i.key"
+                    :style="i.style.box"
+                >
+                    <div class="box-inner" :style="i.style.boxInner">
+                        <div class="box-inner-1" :style="i.style.boxInner1"></div>
+                    </div>
+                    <div class="box-event" 
+                        @mouseenter="element.box.child.onMouseenter(i.key, ...arguments)"
+                        @mouseleave="element.box.child.onMouseleave(i.key, ...arguments)"
+                    ></div>
+                </div>
+            </div>
+        </div>
+        <script src="assets/js/main/main.js"></script>
+    </body>
+</html>
