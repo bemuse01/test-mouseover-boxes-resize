@@ -11,6 +11,7 @@ BOX.child.build = class{
         this.key = null
         this.left = null
         this.right = null
+        this.set = true
     }
 
     // create
@@ -24,6 +25,10 @@ BOX.child.build = class{
 
             this.arr[i] = {
                 key: i,
+                param: {
+                    boxInner: null,
+                    boxInner1: null
+                },
                 style: {
                     box: {
                         left: `${w * i}%`,
@@ -33,7 +38,7 @@ BOX.child.build = class{
                     boxInner: {
                         zIndex: '1',
                         transform: 'translate(0, 0)',
-                        transition: 'transform 0.5s',
+                        // transition: 'transform 0.5s',
                     },
                     boxInner1: {
                         background: `hsl(0, 0%, ${light}%)`,
@@ -69,7 +74,7 @@ BOX.child.build = class{
                 
                 e.style.boxInner1.transform = 'translate(0, 0)'
             }else{
-                e.style.boxInner.transition = 'initial'
+                e.style.boxInner.transition = 'unset'
             }
         })
     }
@@ -83,24 +88,62 @@ BOX.child.build = class{
 
     // animate
     animate(){
-        if(this.element === null) return
+        // if(this.element === null) return
 
-        const {left} = this.parent.getBoundingClientRect()
-        const {right} = this.element.getBoundingClientRect()
+        // const {left} = this.parent.getBoundingClientRect()
+        // const {right} = this.element.getBoundingClientRect()
 
-        this.arr.forEach(e => {
-            if(e.key !== this.key){
-                if(e.key < this.key){
-                    e.style.boxInner.transform = `translate(-${this.left - left}px, 0)`
-                }else{
-                    e.style.boxInner.transform = `translate(${right - this.right}px, 0)`
-                }
+        // this.arr.forEach(e => {
+        //     if(e.key !== this.key){
+        //         if(e.key < this.key){
+        //             e.style.boxInner.transform = `translate(-${this.left - left}px, 0)`
+        //         }else{
+        //             e.style.boxInner.transform = `translate(${right - this.right}px, 0)`
+        //         }
+        //     }
+        // })
+
+        const inner = document.querySelectorAll('.box-inner')
+        const inner1 = document.querySelectorAll('.box-inner-1')
+
+        if(inner.length === 0 || inner1.length === 0 || this.key === null) return
+
+        if(this.set === true){
+            this.arr.forEach(e => {
+                e.param.boxInner = inner[e.key].getBoundingClientRect()
+                e.param.boxInner1 = inner1[e.key].getBoundingClientRect()
+            })
+            this.set = false
+        }
+
+        for(let i = 0; i < this.arr.length; i++){
+            if(i === this.key) continue 
+
+            if(i < this.key){
+                const parent_rect = inner[i + 1].getBoundingClientRect()
+                const parent_rect1 = this.arr[i + 1].param.boxInner
+
+                const left = parent_rect.right <= parent_rect1.right ? parent_rect.right - parent_rect1.right : parent_rect1.right - parent_rect.right
+
+                this.arr[i].style.boxInner.transform = `translate(${left}px, 0)`
+            }else{
+                const child_rect = inner1[i - 1].getBoundingClientRect()
+                const child_rect1 = this.arr[i - 1].param.boxInner1
+
+                const right = child_rect.left <= child_rect1.left ? child_rect.left - child_rect1.left : child_rect1.left - child_rect.left
+
+                this.arr[i].style.boxInner.transform = `translate(${-right}px, 0)`
             }
-        })
+        }
     }
 
     // get
     getElement(){
         return this.arr
+    }
+
+    // resize
+    resize(){
+        this.set = true
     }
 }

@@ -15,4 +15,9 @@ BOX.build = class{
     animate(){
         this.child.animate()
     }
+
+    // resize
+    resize(){
+        this.child.resize()
+    }
 }

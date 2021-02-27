@@ -14,6 +14,13 @@ new Vue({
         // init
         init(){
             this.animate()
+
+            window.addEventListener('resize', this.onWindowResize, false)
+        },
+
+        // event
+        onWindowResize(){
+            this.element.box.resize()
         },
 
         // render
