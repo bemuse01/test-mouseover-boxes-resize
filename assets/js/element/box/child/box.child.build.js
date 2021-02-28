@@ -7,10 +7,7 @@ BOX.child.build = class{
     // init
     #init(){
         this.param = new BOX.child.param()
-        this.element = null
         this.key = null
-        this.left = null
-        this.right = null
         this.set = true
     }
 
@@ -53,17 +50,9 @@ BOX.child.build = class{
     // event
     onMouseenter(key, event){
         event.preventDefault()
-
-        this.element = event.target.parentElement.querySelector('.box-inner-1')
-        this.parent = event.target.parentElement.querySelector('.box-inner')
+        
         this.key = key
         
-        const {right} = this.element.getBoundingClientRect()
-        const {left} = this.parent.getBoundingClientRect()
-
-        this.left = left
-        this.right = right
-
         const step = 75 / (this.arr.length - 1)
 
         this.arr.forEach(e => {
@@ -88,21 +77,6 @@ BOX.child.build = class{
 
     // animate
     animate(){
-        // if(this.element === null) return
-
-        // const {left} = this.parent.getBoundingClientRect()
-        // const {right} = this.element.getBoundingClientRect()
-
-        // this.arr.forEach(e => {
-        //     if(e.key !== this.key){
-        //         if(e.key < this.key){
-        //             e.style.boxInner.transform = `translate(-${this.left - left}px, 0)`
-        //         }else{
-        //             e.style.boxInner.transform = `translate(${right - this.right}px, 0)`
-        //         }
-        //     }
-        // })
-
         const inner = document.querySelectorAll('.box-inner')
         const inner1 = document.querySelectorAll('.box-inner-1')
 
