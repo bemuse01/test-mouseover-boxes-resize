@@ -9,6 +9,7 @@ BOX.child.build = class{
         this.param = new BOX.child.param()
         this.key = null
         this.set = true
+        this.gsap = []
     }
 
     // create
@@ -40,7 +41,7 @@ BOX.child.build = class{
                     boxInner1: {
                         background: `hsl(0, 0%, ${light}%)`,
                         transform: 'translate(-75%, 0)',
-                        transition: 'transform 0.5s',
+                        // transition: 'transform 0.5s',
                     }
                 }
             }
@@ -53,26 +54,32 @@ BOX.child.build = class{
         
         this.key = key
         
-        const step = 75 / (this.arr.length - 1)
+        // const step = 75 / (this.arr.length - 1)
 
-        this.arr.forEach(e => {
-            if(e.key === key){
-                e.style.boxInner.zIndex = '2'
-                e.style.boxInner.transition = 'transform 0.5s'
-                e.style.boxInner.transform = `translate(${e.key * -step}%, 0)`
+        // this.arr.forEach(e => {
+        //     if(e.key === key){
+        //         e.style.boxInner.zIndex = '2'
+        //         e.style.boxInner.transition = 'transform 0.5s'
+        //         e.style.boxInner.transform = `translate(${e.key * -step}%, 0)`
                 
-                e.style.boxInner1.transform = 'translate(0, 0)'
-            }else{
-                e.style.boxInner.transition = 'unset'
-            }
-        })
+        //         e.style.boxInner1.transform = 'translate(0, 0)'
+        //     }else{
+        //         // e.style.boxInner.transition = 'unset'
+        //     }
+        // })
+
+        for(let i in this.gsap[key]) this.gsap[key][i].play()
     }
     onMouseleave(key, event){
         event.preventDefault()
 
-        this.arr[key].style.boxInner.zIndex = '1'
-        this.arr[key].style.boxInner.transform = `translate(0, 0)`
-        this.arr[key].style.boxInner1.transform = 'translate(-75%, 0)'
+        // this.arr[key].style.boxInner.zIndex = '1'
+        // this.arr[key].style.boxInner.transform = `translate(0, 0)`
+        // this.arr[key].style.boxInner1.transform = 'translate(-75%, 0)'
+        for(let i in this.gsap[key]) {
+            const currentTime = this.gsap[key][i].time()
+            this.gsap[key][i].reverse(currentTime)
+        }
     }
 
     // animate
@@ -83,10 +90,43 @@ BOX.child.build = class{
         if(inner.length === 0 || inner1.length === 0 || this.key === null) return
 
         if(this.set === true){
+            const step = 75 / (this.arr.length - 1)
+
             this.arr.forEach(e => {
                 e.param.boxInner = inner[e.key].getBoundingClientRect()
                 e.param.boxInner1 = inner1[e.key].getBoundingClientRect()
+
+                const boxInner = {
+                    translate: 0,
+                }
+                const boxInner1 = {
+                    translate: -75
+                }
+
+                this.gsap[e.key] = {
+                    boxInner: gsap.to(boxInner, {
+                        duration: 0.5,
+                        translate: e.key * -step,
+                        onReverseComplete(){
+                            e.style.boxInner.zIndex = '1'
+                        },
+                        onUpdate(){
+                            e.style.boxInner.zIndex = '2'
+                            e.style.boxInner.transform = `translate(${boxInner.translate}%, 0)`
+                        },
+                        paused: true
+                    }),
+                    boxInner1: gsap.to(boxInner1, {
+                        duration: 0.5,
+                        translate: 0,
+                        onUpdate(){
+                            e.style.boxInner1.transform = `translate(${boxInner1.translate}%, 0)`
+                        },
+                        paused: true
+                    })
+                }
             })
+
             this.set = false
         }
 
