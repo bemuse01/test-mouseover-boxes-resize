@@ -16,7 +16,9 @@ BOX.child.build = class{
     #create(){
         this.arr = []
         
-        const w = 100 / this.param.count
+        const halfWidth = window.innerWidth / 2
+        const width = halfWidth / this.param.count
+        const expanded = width * 4
 
         for(let i = 0; i < this.param.count; i++){
             const light = i * this.param.light 
@@ -24,25 +26,32 @@ BOX.child.build = class{
             this.arr[i] = {
                 key: i,
                 param: {
-                    boxInner: null,
-                    boxInner1: null
+                    width: width,
+                    expanded: expanded
                 },
                 style: {
                     box: {
-                        left: `${w * i}%`,
-                        width: `${w}%`,
+                        left: `${width * i}px`,
+                        width: `${width}px`,
                         visibility: 'visible'
                     },
                     boxInner: {
+                        width: `${expanded}px`,
                         zIndex: '1',
-                        transform: 'translate(0, 0)',
-                        // transition: 'transform 0.5s',
+                        transform: 'translate(0, 0)'
                     },
                     boxInner1: {
                         background: `hsl(0, 0%, ${light}%)`,
-                        transform: 'translate(-75%, 0)',
-                        // transition: 'transform 0.5s',
+                        transform: `translate(-${expanded * 0.75}px, 0)`
                     }
+                },
+                position: {
+                    boxInner: new THREE.Vector2(),
+                    boxInner1: new THREE.Vector2()
+                },
+                move: {
+                    boxInner: new THREE.Vector2(),
+                    boxInner1: new THREE.Vector2()
                 }
             }
         }
@@ -53,101 +62,65 @@ BOX.child.build = class{
         event.preventDefault()
         
         this.key = key
+
+        const remaining = this.arr[0].param.width * this.arr.length - this.arr[0].param.expanded
+        const skinny = Math.round(remaining / (this.arr.length - 1))
+
+        // let x = (this.arr[0].param.width * this.arr.length - this.arr[0].param.width * this.arr.length) / 2
+        let x = 0
+        let divide = 0
         
-        // const step = 75 / (this.arr.length - 1)
+        for(let i = 0; i < this.arr.length; i++) divide += Math.abs(i - key)
 
-        // this.arr.forEach(e => {
-        //     if(e.key === key){
-        //         e.style.boxInner.zIndex = '2'
-        //         e.style.boxInner.transition = 'transform 0.5s'
-        //         e.style.boxInner.transform = `translate(${e.key * -step}%, 0)`
-                
-        //         e.style.boxInner1.transform = 'translate(0, 0)'
-        //     }else{
-        //         // e.style.boxInner.transition = 'unset'
-        //     }
-        // })
+        for(var i = 0; i < this.arr.length; i++){
+            const slice = this.arr[i]
 
-        for(let i in this.gsap[key]) this.gsap[key][i].play()
+            const moveX = -i * slice.param.width + x
+            const perc = Math.abs(i - key) / divide
+
+            // const width = Math.round(skinny * 1.8 - remaining * perc * 0.8)
+            const width = skinny
+            const w = key === i ? 0 : -slice.param.expanded + width
+            slice.move.boxInner.set(moveX, 0)
+
+            // if (i == e.index) slice.hoverIn()
+            // else slice.hoverOut()
+
+            if(i === key) {
+                slice.move.boxInner1.set(0, 0)
+                slice.style.boxInner.zIndex = '2'
+            }
+
+            x += key === i ? slice.param.expanded : width
+        }
     }
     onMouseleave(key, event){
         event.preventDefault()
 
-        // this.arr[key].style.boxInner.zIndex = '1'
-        // this.arr[key].style.boxInner.transform = `translate(0, 0)`
-        // this.arr[key].style.boxInner1.transform = 'translate(-75%, 0)'
-        for(let i in this.gsap[key]) {
-            const currentTime = this.gsap[key][i].time()
-            this.gsap[key][i].reverse(currentTime)
+        for(let i = 0; i < this.arr.length; i++) {
+            const slice = this.arr[i]
+
+            slice.move.boxInner.set(0, 0)
+            slice.move.boxInner1.set(slice.param.expanded * 0.75, 0)
+
+            if(i === key) slice.style.boxInner.zIndex = '1'
         }
     }
 
     // animate
     animate(){
-        const inner = document.querySelectorAll('.box-inner')
-        const inner1 = document.querySelectorAll('.box-inner-1')
-
-        if(inner.length === 0 || inner1.length === 0 || this.key === null) return
-
         if(this.set === true){
-            const step = 75 / (this.arr.length - 1)
-
-            this.arr.forEach(e => {
-                e.param.boxInner = inner[e.key].getBoundingClientRect()
-                e.param.boxInner1 = inner1[e.key].getBoundingClientRect()
-
-                const boxInner = {
-                    translate: 0,
-                }
-                const boxInner1 = {
-                    translate: -75
-                }
-
-                this.gsap[e.key] = {
-                    boxInner: gsap.to(boxInner, {
-                        duration: 0.5,
-                        translate: e.key * -step,
-                        onReverseComplete(){
-                            e.style.boxInner.zIndex = '1'
-                        },
-                        onUpdate(){
-                            e.style.boxInner.zIndex = '2'
-                            e.style.boxInner.transform = `translate(${boxInner.translate}%, 0)`
-                        },
-                        paused: true
-                    }),
-                    boxInner1: gsap.to(boxInner1, {
-                        duration: 0.5,
-                        translate: 0,
-                        onUpdate(){
-                            e.style.boxInner1.transform = `translate(${boxInner1.translate}%, 0)`
-                        },
-                        paused: true
-                    })
-                }
-            })
-
             this.set = false
         }
 
         for(let i = 0; i < this.arr.length; i++){
-            if(i === this.key) continue 
+            const slice = this.arr[i]
 
-            if(i < this.key){
-                const parent_rect = inner[i + 1].getBoundingClientRect()
-                const parent_rect1 = this.arr[i + 1].param.boxInner
+            slice.position.boxInner.lerp(slice.move.boxInner, 0.12)
+            slice.position.boxInner1.lerp(slice.move.boxInner1, 0.12)
 
-                const left = parent_rect.right <= parent_rect1.right ? parent_rect.right - parent_rect1.right : parent_rect1.right - parent_rect.right
-
-                this.arr[i].style.boxInner.transform = `translate(${left}px, 0)`
-            }else{
-                const child_rect = inner1[i - 1].getBoundingClientRect()
-                const child_rect1 = this.arr[i - 1].param.boxInner1
-
-                const right = child_rect.left <= child_rect1.left ? child_rect.left - child_rect1.left : child_rect1.left - child_rect.left
-
-                this.arr[i].style.boxInner.transform = `translate(${-right}px, 0)`
-            }
+            slice.style.boxInner.transform = `translate(${slice.position.boxInner.x}px, 0)`
+            slice.style.boxInner1.transform = `translate(-${slice.position.boxInner1.x}px, 0)`
         }
     }
 
