@@ -61,7 +61,7 @@ BOX.child.build = class{
     onMouseenter(key, event){
         event.preventDefault()
         
-        this.key = key
+        // this.key = key
 
         const remaining = this.arr[0].param.width * this.arr.length - this.arr[0].param.expanded
         const skinny = Math.round(remaining / (this.arr.length - 1))
@@ -97,7 +97,7 @@ BOX.child.build = class{
     onMouseleave(key, event){
         event.preventDefault()
 
-        for(let i = 0; i < this.arr.length; i++) {
+        for(let i = 0; i < this.arr.length; i++){
             const slice = this.arr[i]
 
             slice.move.boxInner.set(0, 0)
